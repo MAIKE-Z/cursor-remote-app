@@ -761,7 +761,11 @@ async function syncNotify() {
   try {
     if (nativeNotify()) {
       notifyOn = window.CursorRemoteApp.notifyEnabled();
-      if (notifyOn) window.CursorRemoteApp.setNotify(nativeConfig());
+      // Calling this on every reconnect restarts the foreground service and pops "正在等待" again.
+      if (notifyOn && !window.__crNotifyArmed) {
+        window.CursorRemoteApp.setNotify(nativeConfig());
+        window.__crNotifyArmed = true;
+      }
       return;
     }
     const sub = await pushSub();
