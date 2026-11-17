@@ -574,7 +574,13 @@ function connect() {
     else if (m.t === 'params') showParams(m);
     else if (m.t === 'changes') showChanges(m);
     else if (m.t === 'file') showFile(m);
-    else if (m.t === 'status') status(m.msg, m.ok);
+    else if (m.t === 'status') {
+      if (m.ref === 'send') {
+        if (m.ok && text.value === pendingSend) { text.value = ''; autosize(); }
+        pendingSend = '';
+      }
+      status(m.msg, m.ok);
+    }
   };
 }
 
@@ -1274,16 +1280,18 @@ document.querySelectorAll('[data-key]').forEach(b => b.onclick = () => send({ t:
 
 /* ---------- composer ---------- */
 const text = $('text');
+let pendingSend = '';
 function autosize() { text.style.height = 'auto'; text.style.height = text.scrollHeight + 'px'; }
 text.addEventListener('input', autosize);
 $('send').onclick = () => {
   const v = text.value;
-  if (!v.trim()) return;
+  if (!v.trim() || pendingSend) return;
+  if (!ws || ws.readyState !== 1 || !authed) return status('未连接', false);
+  pendingSend = v;
   send({ t: 'send', text: v, submit: true });
-  text.value = ''; autosize();
+  status('正在发送…');
   if (mode === 'chat') list.scrollTop = list.scrollHeight;
 };
-
 /* ---------- voice input ---------- */
 // Android WebView has no Web Speech API, so the app uses the system recognizer through the bridge instead.
 document.body.classList.toggle('voice', store.get('voice') === 'on');
