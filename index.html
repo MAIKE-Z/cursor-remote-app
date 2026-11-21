@@ -119,12 +119,11 @@
   body.voice #mic { flex: none; height: 40px; width: 40px; padding: 0; display: flex; align-items: center; justify-content: center; color: #bbb; }
   #mic.on { color: #fff; background: #c33; border-color: #e55; animation: pulse 1.2s ease-in-out infinite; }
   #send { flex: none; height: 40px; padding: 0 16px; background: #0e639c; border-color: #1177bb; color: #fff; font-weight: 600; }
-  .footLine { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  #msg { flex: 1; min-width: 0; font-size: 12px; color: #888; min-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #msg { font-size: 12px; color: #888; min-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #msg.err { color: #f77; }
-  #usage { flex: none; font-size: 12px; color: #9cc8ff; font-variant-numeric: tabular-nums; }
-  #usage.warn { color: #e5c07b; }
-  #usage.hot { color: #f77; }
+  #usage { margin-left: auto; align-self: center; flex: none; padding: 3px 8px; border-radius: 10px; background: #1e1e1e; border: 1px solid #3c3c3c; font-size: 12px; color: #9cc8ff; font-variant-numeric: tabular-nums; }
+  #usage.warn { color: #e5c07b; border-color: #6b5a30; }
+  #usage.hot { color: #f77; border-color: #6b3030; }
 
   /* bottom sheet */
   #shade { position: fixed; inset: 0; z-index: 30; background: #0008; display: none; }
@@ -250,6 +249,7 @@
     <button id="pickModel" hidden></button>
     <button id="pickHistory">历史</button>
     <button id="newChat">＋ 新建</button>
+    <div id="usage" hidden>用量</div>
   </div>
   <div class="row">
     <textarea id="text" rows="1" placeholder="发给 Cursor Agent…" enterkeyhint="send"></textarea>
@@ -258,7 +258,7 @@
     <button id="mic" title="语音输入" aria-label="语音输入"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
     <button id="send">发送</button>
   </div>
-  <div class="footLine"><div id="msg"></div><div id="usage" hidden>用量</div></div>
+  <div id="msg"></div>
 </footer>
 
 <div id="shade"></div>
@@ -961,6 +961,7 @@ const nearBottom = () => list.scrollHeight - list.scrollTop - list.clientHeight 
 let lastChat = null;
 function renderChat(chat) {
   lastChat = chat;
+  if (chat?.usage != null) showUsage(chat.usage);
   $('empty').hidden = !!chat;
   $('older').hidden = !chat;
   $('pickMode').hidden = !chat?.mode;
