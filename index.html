@@ -1101,7 +1101,7 @@ document.addEventListener('click', async e => {
   if (f) return openFile(f.dataset.file);
   if (!b) return;
   if (RISKY.test(b.textContent.trim()) && !await ask(`确定要点「${b.textContent.trim()}」吗？`, b.textContent.trim())) return;
-  send({ t: 'click', item: b.dataset.item, n: Number(b.dataset.n) });
+  send({ t: 'click', item: b.dataset.item, n: Number(b.dataset.n), label: b.textContent.trim() });
   status('已点击：' + b.textContent);
 });
 
