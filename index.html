@@ -119,8 +119,12 @@
   body.voice #mic { flex: none; height: 40px; width: 40px; padding: 0; display: flex; align-items: center; justify-content: center; color: #bbb; }
   #mic.on { color: #fff; background: #c33; border-color: #e55; animation: pulse 1.2s ease-in-out infinite; }
   #send { flex: none; height: 40px; padding: 0 16px; background: #0e639c; border-color: #1177bb; color: #fff; font-weight: 600; }
-  #msg { font-size: 12px; color: #888; min-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .footLine { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  #msg { flex: 1; min-width: 0; font-size: 12px; color: #888; min-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #msg.err { color: #f77; }
+  #usage { flex: none; font-size: 12px; color: #9cc8ff; font-variant-numeric: tabular-nums; }
+  #usage.warn { color: #e5c07b; }
+  #usage.hot { color: #f77; }
 
   /* bottom sheet */
   #shade { position: fixed; inset: 0; z-index: 30; background: #0008; display: none; }
@@ -254,7 +258,7 @@
     <button id="mic" title="语音输入" aria-label="语音输入"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
     <button id="send">发送</button>
   </div>
-  <div id="msg"></div>
+  <div class="footLine"><div id="msg"></div><div id="usage" hidden>用量</div></div>
 </footer>
 
 <div id="shade"></div>
@@ -304,6 +308,14 @@ function fitViewport() {
 window.visualViewport?.addEventListener('resize', fitViewport);
 fitViewport();
 
+function showUsage(pct) {
+  const el = $('usage');
+  const n = Number(pct);
+  if (!Number.isFinite(n)) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = `用量 ${Math.round(n)}%`;
+  el.className = n >= 100 ? 'hot' : n >= 80 ? 'warn' : '';
+}
 function status(text, ok = true) {
   $('msg').textContent = text;
   $('msg').className = ok ? '' : 'err';
@@ -574,6 +586,7 @@ function connect() {
     else if (m.t === 'params') showParams(m);
     else if (m.t === 'changes') showChanges(m);
     else if (m.t === 'file') showFile(m);
+    else if (m.t === 'usage') showUsage(m.pct);
     else if (m.t === 'status') {
       if (m.ref === 'send') {
         if (m.ok && text.value === pendingSend) { text.value = ''; autosize(); }
