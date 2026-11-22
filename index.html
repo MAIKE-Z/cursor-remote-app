@@ -46,6 +46,8 @@
   .msg { margin: 8px 0; min-width: 0; overflow-wrap: anywhere; }
   .human { display: flex; justify-content: flex-end; }
   .human .bubble { max-width: 88%; background: #264f78; color: #fff; padding: 8px 12px; border-radius: 14px 14px 4px 14px; white-space: pre-wrap; }
+  .human .bubble img { display: block; max-width: 100%; max-height: 240px; object-fit: contain; border-radius: 8px; margin: 0 0 6px; background: #1a1a1a; }
+  .human .bubble img:last-child { margin-bottom: 0; }
   .assistant { padding: 2px 2px; }
   .assistant p { margin: 0 0 .6em; }
   .assistant ul, .assistant ol { margin: 0 0 .6em; padding-left: 1.3em; }
@@ -944,7 +946,10 @@ function buttonsHtml(labels, item) {
 function renderItem(it) {
   const el = document.createElement('div');
   el.className = 'msg ' + it.k;
-  if (it.k === 'human') el.innerHTML = `<div class="bubble">${esc(it.t || '')}</div>`;
+  if (it.k === 'human') {
+    const imgs = (it.imgs || []).filter(src => /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(src)).map(src => `<img src="${src}" alt="">`).join('');
+    el.innerHTML = `<div class="bubble">${imgs}${it.t ? esc(it.t) : ''}</div>`;
+  }
   // it.h comes from the whitelist sanitizer in server.mjs (pageHelpers.clean): plain tags only, text escaped.
   else if (it.k === 'assistant') el.innerHTML = it.h || '';
   else if (it.k === 'tool') {
